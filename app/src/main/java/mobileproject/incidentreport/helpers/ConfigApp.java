@@ -11,4 +11,7 @@ public class ConfigApp {
     public static final String PARSE_CHANNEL = "";
     public static final String PARSE_APPLICATION_ID = "Me5CJw5LT408QL8QGUDdXBMHLeahkSfIujqwlkhR";
     public static final String PARSE_CLIENT_KEY = "dlPUdYIwkU3E2nmvJhpvf5LlQWusToPjkX369V77";
+    public static final String database_url = "jdbc:mysql://frankencluster.com:3306/g04dbf15";
+    public static final String database_user = "g04dbf15webuser";
+    public static final String database_pass = "]a=S]90;{@BH";
 }

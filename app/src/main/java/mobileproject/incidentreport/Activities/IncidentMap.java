@@ -29,12 +29,10 @@ import java.util.ArrayList;
 
 import mobileproject.incidentreport.Entities.Incident;
 import mobileproject.incidentreport.R;
+import mobileproject.incidentreport.helpers.ConfigApp;
 
 public class IncidentMap extends FragmentActivity implements AdapterView.OnItemSelectedListener {
 
-    private static final String database_url = "jdbc:mysql://frankencluster.com:3306/g04dbf15";
-    private static final String database_user = "g04dbf15webuser";
-    private static final String database_pass = "]a=S]90;{@BH";
     private Spinner categoryDropDown;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     ArrayList<Incident> report = new ArrayList<>();
@@ -100,7 +98,7 @@ public class IncidentMap extends FragmentActivity implements AdapterView.OnItemS
         protected Void doInBackground(Void... arg0) {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
-                Connection con = DriverManager.getConnection(database_url, database_user, database_pass);
+                Connection con = DriverManager.getConnection(ConfigApp.database_url, ConfigApp.database_user, ConfigApp.database_pass);
                 String queryString = "select * from g04dbf15.tbl_incidents";
 
                 Statement st = con.createStatement();
@@ -120,7 +118,7 @@ public class IncidentMap extends FragmentActivity implements AdapterView.OnItemS
             }
             try {
                 Class.forName("com.mysql.jdbc.Driver");
-                Connection con = DriverManager.getConnection(database_url, database_user, database_pass);
+                Connection con = DriverManager.getConnection(ConfigApp.database_url, ConfigApp.database_user, ConfigApp.database_pass);
                 for (int i = 0; i < report.size(); i++) {
 
                     String categoryQuery = "select * from g04dbf15.tbl_incident_cat where g04dbf15.tbl_incident_cat.incident_id = " + report.get(i).getId();
