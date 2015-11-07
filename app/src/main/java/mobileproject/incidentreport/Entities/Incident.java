@@ -15,10 +15,20 @@ public class Incident {
     private String description;
     private Uri fileUri;
     private String username;
+    private int id;
 
     public Incident(){
 
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public void setLat(double lat){
         this.lat = lat;
     }

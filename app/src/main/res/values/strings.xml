@@ -15,12 +15,25 @@
     <string name="incident_lat">Incident Lat</string>
     <string name="incident_long">Incident Long</string>
     <string-array name="incident_cato">
+        <item>Select Category</item>
         <item>Homocide</item>
         <item>Robbery</item>
         <item>Battery</item>
         <item>Fire</item>
         <item>Sexual Assault</item>
+        <item>Drugs</item>
+    </string-array>
+    <string-array name="categorySpinner">
+        <item>Select Category</item>
+        <item>Homicide</item>
+        <item>Robbery</item>
+        <item>Battery</item>
+        <item>Fire</item>
+        <item>Sexual Assault</item>
+        <item>Drugs</item>
     </string-array>
     <string name="title_activity_display__incident__list">Display_Incident_List</string>
     <string name="title_activity_dispatch_menu">Dispatch_menu</string>
+    <string name="title_activity_incident_map">Map</string>
+    <string name="google_maps_key">AIzaSyAanwOsUnNqGPMc_aQDZzDwdVFHb_4RtIc</string>
 </resources>

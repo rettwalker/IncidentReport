@@ -44,4 +44,9 @@ public class User_Menu extends AppCompatActivity {
         Intent intent = new Intent(this, Report_A_Incident.class);
         startActivity(intent);
     }
+    public void showMap(View view)
+    {
+        Intent intent = new Intent(this, IncidentMap.class);
+        startActivity(intent);
+    }
 }
