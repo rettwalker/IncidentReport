@@ -10,4 +10,31 @@
     tools:showIn="@layout/activity_dispatch_menu"
     tools:context="mobileproject.incidentreport.Activities.Dispatch_menu">
 
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/display_officer_button"
+        android:id="@+id/button"
+        android:layout_alignBottom="@+id/button2"
+        android:onClick="displayAllOfficers" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/all_incident_button"
+        android:id="@+id/button2"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:onClick="displayAllIncidents" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/unrespond_button"
+        android:id="@+id/button3"
+        android:layout_above="@+id/button"
+        android:layout_centerHorizontal="true"
+        android:onClick="displayUnrespondIncidents" />
 </RelativeLayout>

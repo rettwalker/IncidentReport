@@ -36,4 +36,11 @@
     <string name="title_activity_dispatch_menu">Dispatch_menu</string>
     <string name="title_activity_incident_map">Map</string>
     <string name="google_maps_key">AIzaSyAanwOsUnNqGPMc_aQDZzDwdVFHb_4RtIc</string>
+    <string name="title_activity_incident_list">IncidentList</string>
+    <string name="title_activity_officer_list">OfficerList</string>
+    <string name="title_activity_un_responded_list">UnRespondedList</string>
+    <string name="all_incident_button">Display All Incidents</string>
+    <string name="unrespond_button">Display Unresponded To Incidents</string>
+    <string name="display_officer_button">Display Officers</string>
+    <string name="title_activity_dispatch_to_officer">DispatchToOfficer</string>
 </resources>

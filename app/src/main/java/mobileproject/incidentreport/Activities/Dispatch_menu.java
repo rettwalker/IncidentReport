@@ -1,5 +1,6 @@
 package mobileproject.incidentreport.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -27,5 +28,14 @@ public class Dispatch_menu extends AppCompatActivity {
             }
         });
     }
+    public void displayAllIncidents(View view){
+        Intent intent = new Intent(this,IncidentList.class);
+        startActivity(intent);
+    }
+    public void displayAllOfficers(View view){
+        Intent intent = new Intent(this,OfficerList.class);
+        startActivity(intent);
+    }
+    
 
 }

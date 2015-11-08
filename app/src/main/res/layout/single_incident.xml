@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight">
+
+
+    <ImageView
+        android:id="@+id/incident_icon"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="6dip"
+
+        android:src="@drawable/logo" />
+
+    <TextView
+        android:id="@+id/type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:gravity="center_vertical"
+        android:text="Example application"
+        android:textSize="16sp"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/incident_icon"
+        android:layout_toEndOf="@+id/incident_icon" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Address Goes Here"
+        android:id="@+id/incident_address"
+        android:layout_below="@+id/type"
+        android:layout_alignLeft="@+id/type"
+        android:layout_alignStart="@+id/type"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

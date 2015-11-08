@@ -1,5 +1,6 @@
 package mobileproject.incidentreport.Activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.location.Location;
@@ -12,12 +13,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.io.FileInputStream;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -36,6 +37,9 @@ import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -51,8 +55,7 @@ public class Report_A_Incident extends AppCompatActivity implements
     protected LocationRequest mLocationRequest;
     private Uri fileUri;
     private Incident current_incident = new Incident();
-    private static String incident_long;
-    private static String incident_lat;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +72,7 @@ public class Report_A_Incident extends AppCompatActivity implements
                 R.array.incident_cato, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         reportCat.setAdapter(adapter);
+        reportCat.setOnItemSelectedListener(new TypeSelector());
 
     }
 
@@ -95,7 +99,7 @@ public class Report_A_Incident extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    static final int REQUEST_IMAGE_CAPTURE = 1;
+
     public void takePicture(View view){
         dispatchTakePictureIntent();
     }
@@ -140,11 +144,16 @@ public class Report_A_Incident extends AppCompatActivity implements
 
     /** Create a file Uri for saving an image or video */
     private  Uri getOutputMediaFileUri(){
-        return Uri.fromFile(getOutputMediaFile());
+        try {
+            return Uri.fromFile(getOutputMediaFile());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /** Create a File for saving an image or video */
-    private File getOutputMediaFile(){
+    private File getOutputMediaFile() throws ParseException {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
@@ -162,7 +171,10 @@ public class Report_A_Incident extends AppCompatActivity implements
         }
 
         // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        Date date = dateFormat.parse("23/09/2007");
+        long time = date.getTime();
+        Timestamp timeStamp = new Timestamp(time);
         current_incident.setTimestamp(timeStamp);
         File mediaFile;
         mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_"+ timeStamp + ".jpg");
@@ -184,8 +196,6 @@ public class Report_A_Incident extends AppCompatActivity implements
     }
     private void handleNewLocation(Location location) {
         Log.d(TAG, location.toString());
-        incident_lat = String.valueOf(location.getLatitude());
-        incident_long = String.valueOf(location.getLongitude());
         current_incident.setLat(location.getLatitude());
         current_incident.setLongit(location.getLongitude());
     }
@@ -213,6 +223,7 @@ public class Report_A_Incident extends AppCompatActivity implements
         push.setChannel("dispatch");
         push.setData(incident);
         new insertDB().execute();
+        //push.sendInBackground();
         finish();
     }
     private class insertDB extends AsyncTask<Void, Void, Void> {
@@ -264,9 +275,14 @@ public class Report_A_Incident extends AppCompatActivity implements
                 //Get the Top ID
                 String query = "SELECT MAX(incident_id) FROM tbl_incidents;";
 
-                rs = st.executeQuery(query);
 
-                current_incident.setId(rs.getInt("incident_id"));
+
+                rs = st.executeQuery(query);
+                if(rs.next()){
+                    Log.i(TAG,"user ID = "+rs.getInt("MAX(incident_id)"));
+                    current_incident.setId(rs.getInt("MAX(incident_id)"));
+                }
+
                 //Insert incident into tbl_incident
                 query= "INSERT INTO tbl_incidents (incident_id,longitude,latitude,description)\n" +
                         "      VALUES('"+current_incident.getId()+"','"+current_incident.getLat()
@@ -275,18 +291,19 @@ public class Report_A_Incident extends AppCompatActivity implements
                         "VALUES ('"+current_incident.getId()+"','"+typeID+"');" +
                         "INSERT INTO tbl_user_reports_incident (report_id,user_id,incident_id,reportTime)" +
                         "VALUES (NULL,'"+current_incident.getUserId()+"','"+current_incident.getId()+"'," +
-                        "'"+current_incident.getTimestamp()+"');";
-                st.executeUpdate(query);
+                        "'"+current_incident.getTimestamp()+"');" +
+                        "INSERT INTO tbl_officer_responds_incident VALUES(NULL,NULL,'"+current_incident.getId()+",NULL);";
+                //st.executeUpdate(query);
 
                 if(fileUri!=null){
                     File pic = new File(fileUri.getPath());
                     FileInputStream fileInputStream = new FileInputStream(pic);
                     imageSt=con.prepareStatement("INSERT INTO tbl_photos(photo_id,photo,incident_id) VALUES (NULL,?,?");
-                    imageSt.setBinaryStream(2,fileInputStream);
-                    imageSt.setInt(3,current_incident.getId());
-                    check=imageSt.executeUpdate();
+                    imageSt.setBinaryStream(1,fileInputStream);
+                    imageSt.setInt(2,current_incident.getId());
+                    //check=imageSt.executeUpdate();
                 }
-
+                con.close();
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -300,6 +317,15 @@ public class Report_A_Incident extends AppCompatActivity implements
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             progressDialog.dismiss();
+        }
+    }
+    public class TypeSelector extends Activity implements AdapterView.OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            current_incident.setType(parent.getItemAtPosition(pos).toString());
+        }
+
+        public void onNothingSelected(AdapterView<?> parent) {
+            // Another interface callback
         }
     }
 }

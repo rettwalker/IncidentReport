@@ -121,7 +121,7 @@ public class OLoginActivity extends AppCompatActivity {
 
     public void onDispatchLoginSuccess(){
         _loginButton.setEnabled(true);
-        Intent intent = new Intent(this,Dispatch_menu.class);
+        Intent intent = new Intent(this,IncidentList.class);
         startActivity(intent);
         finish();
     }
