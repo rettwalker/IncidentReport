@@ -14,7 +14,7 @@ public class Incident {
     private String type;
     private String description;
     private Uri fileUri;
-    private String username;
+    private int userId;
     private int id;
 
     public Incident(){
@@ -76,11 +76,11 @@ public class Incident {
         return fileUri;
     }
 
-    public String getUsername() {
-        return username;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUsername(int userId) {
+        this.userId = userId;
     }
 }

@@ -1,8 +1,10 @@
 package mobileproject.incidentreport.Activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +15,11 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import java.io.FileInputStream;
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 
 import com.google.android.gms.common.ConnectionResult;
@@ -26,11 +33,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import mobileproject.incidentreport.Entities.Incident;
 import mobileproject.incidentreport.R;
+import mobileproject.incidentreport.helpers.ConfigApp;
 
 public class Report_A_Incident extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -193,14 +204,103 @@ public class Report_A_Incident extends AppCompatActivity implements
                 .put("longitude",current_incident.getLongit())
                 .put("description",current_incident.getDescription())
                 .put("type",current_incident.getType())
-                .put("user",current_incident.getUsername());
+                .put("userId",current_incident.getUserId());
 
         Toast all_clear = Toast.makeText(this, "Incident Reported, Thank you!" , Toast.LENGTH_LONG);
         all_clear.show();
 
         ParsePush push = new ParsePush();
-        push.setChannel("officers");
+        push.setChannel("dispatch");
         push.setData(incident);
+        new insertDB().execute();
         finish();
     }
+    private class insertDB extends AsyncTask<Void, Void, Void> {
+        final ProgressDialog progressDialog = new ProgressDialog(Report_A_Incident.this,
+                R.style.AppTheme_AppBarOverlay);
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            final ProgressDialog progressDialog = new ProgressDialog(Report_A_Incident.this,
+                    R.style.AppTheme_AppBarOverlay);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage("Reporting Incident...");
+            progressDialog.show();
+        }
+
+
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection con = DriverManager.getConnection(ConfigApp.database_url, ConfigApp.database_user, ConfigApp.database_pass);
+                Statement st = con.createStatement();
+                PreparedStatement imageSt;
+                ResultSet rs;
+                int check;
+                int typeID=0;
+                switch (current_incident.getType()) {
+                    case "fire":
+                        typeID = 4;
+                        break;
+                    case "homocide":
+                        typeID = 1;
+                        break;
+                    case "battery":
+                        typeID = 3;
+                        break;
+                    case "robbery":
+                        typeID = 2;
+                        break;
+                    case "sexual assault":
+                        typeID = 5;
+                        break;
+                    case "drugs":
+                        typeID = 6;
+                    default:
+                        break;
+                }
+                //Get the Top ID
+                String query = "SELECT MAX(incident_id) FROM tbl_incidents;";
+
+                rs = st.executeQuery(query);
+
+                current_incident.setId(rs.getInt("incident_id"));
+                //Insert incident into tbl_incident
+                query= "INSERT INTO tbl_incidents (incident_id,longitude,latitude,description)\n" +
+                        "      VALUES('"+current_incident.getId()+"','"+current_incident.getLat()
+                        +"', '"+current_incident.getLongit()+"', '"+current_incident.getDescription()+"');" +
+                        "INSERT INTO tbl_incident_cat (incident_id,catogories_id)" +
+                        "VALUES ('"+current_incident.getId()+"','"+typeID+"');" +
+                        "INSERT INTO tbl_user_reports_incident (report_id,user_id,incident_id,reportTime)" +
+                        "VALUES (NULL,'"+current_incident.getUserId()+"','"+current_incident.getId()+"'," +
+                        "'"+current_incident.getTimestamp()+"');";
+                st.executeUpdate(query);
+
+                if(fileUri!=null){
+                    File pic = new File(fileUri.getPath());
+                    FileInputStream fileInputStream = new FileInputStream(pic);
+                    imageSt=con.prepareStatement("INSERT INTO tbl_photos(photo_id,photo,incident_id) VALUES (NULL,?,?");
+                    imageSt.setBinaryStream(2,fileInputStream);
+                    imageSt.setInt(3,current_incident.getId());
+                    check=imageSt.executeUpdate();
+                }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            progressDialog.dismiss();
+        }
+    }
 }
+
