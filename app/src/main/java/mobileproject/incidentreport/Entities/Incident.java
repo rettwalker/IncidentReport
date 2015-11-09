@@ -24,11 +24,11 @@ public class Incident implements Serializable {
     private int respond_id;
     private String respondOfficer_id;
     private Timestamp respondTimestamp;
+    private String username;
 
     public Incident(){
 
     }
-
 
 
     public String getStreetAddress() {
@@ -98,8 +98,16 @@ public class Incident implements Serializable {
         return userId;
     }
 
-    public void setUsername(int userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public int getRespond_id() {

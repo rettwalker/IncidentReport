@@ -56,14 +56,23 @@ public class DispatchToOfficer extends AppCompatActivity {
                 ParsePush push = new ParsePush();
                 push.setChannel(officer.getUsername());
                 JSONObject incidentOb = null;
+                JSONObject incidentUs = null;
                 try {
-                    incidentOb = new JSONObject().put("incident_id",incident.getId());
+                    incidentOb = new JSONObject().put("incident_id",incident.getId())
+                    .put("type","toOfficer")
+                    .put("strAddress",incident.getStreetAddress())
+                    .put("catType",incident.getType());
+                    incidentUs = new JSONObject().put("type", "toUser");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 push.setData(incidentOb);
-               // push.sendInBackground();
-                Toast notifyOfficer = Toast.makeText(getBaseContext(), "Officer Notified" , Toast.LENGTH_LONG);
+                //push.sendInBackground();
+                ParsePush userPush = new ParsePush();
+                userPush.setChannel(incident.getUsername());
+                userPush.setData(incidentUs);
+                //userPush.sendInBackground();
+                Toast notifyOfficer = Toast.makeText(getBaseContext(), "Officer Notified and User Notified" , Toast.LENGTH_LONG);
                 notifyOfficer.show();
                 finish();
 

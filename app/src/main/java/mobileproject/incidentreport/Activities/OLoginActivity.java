@@ -12,13 +12,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParsePush;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import mobileproject.incidentreport.R;
+import mobileproject.incidentreport.helpers.ConfigApp;
 
 public class OLoginActivity extends AppCompatActivity {
     private static final String TAG = "OLoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+
 
     @Bind(R.id.input_username) EditText _usernameText;
     @Bind(R.id.input_password) EditText _passwordText;
@@ -82,13 +86,14 @@ public class OLoginActivity extends AppCompatActivity {
         progressDialog.show();
 
         final String username = _usernameText.getText().toString();
-        String password = _passwordText.getText().toString();
+        final String password = _passwordText.getText().toString();
 
         // TODO: Implement your own authentication logic here.
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
+                        ParsePush.subscribeInBackground(username);
                         if (username.equalsIgnoreCase("dispatch")) {
                             onDispatchLoginSuccess();
                         }else {

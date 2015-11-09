@@ -7,6 +7,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.parse.ParsePush;
+
 import mobileproject.incidentreport.R;
 
 public class User_Menu extends AppCompatActivity {
@@ -14,6 +16,7 @@ public class User_Menu extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ParsePush.subscribeInBackground("test");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user__menu);
 

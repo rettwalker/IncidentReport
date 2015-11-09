@@ -208,13 +208,9 @@ public class Report_A_Incident extends AppCompatActivity implements
     public void reportIncident(View view) throws JSONException {
         String description = findViewById(R.id.incident_description).toString();
         current_incident.setDescription(description);
+        current_incident.setUsername("test");
         JSONObject incident = new JSONObject()
-                .put("incident",current_incident)
-                .put("latitude", current_incident.getLat())
-                .put("longitude",current_incident.getLongit())
-                .put("description",current_incident.getDescription())
-                .put("type",current_incident.getType())
-                .put("userId",current_incident.getUserId());
+                .put("type","report");
 
         Toast all_clear = Toast.makeText(this, "Incident Reported, Thank you!" , Toast.LENGTH_LONG);
         all_clear.show();

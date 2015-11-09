@@ -12,9 +12,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParsePush;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import mobileproject.incidentreport.R;
+import mobileproject.incidentreport.helpers.ConfigApp;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
@@ -80,14 +83,15 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
 
-        String username = _usernameText.getText().toString();
-        String password = _passwordText.getText().toString();
+        final String username = _usernameText.getText().toString();
+        final String password = _passwordText.getText().toString();
 
         // TODO: Implement your own authentication logic here.
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
+                        ParsePush.subscribeInBackground(username);
                         // On complete call either onLoginSuccess or onLoginFailed
                         onLoginSuccess();
                         // onLoginFailed();
