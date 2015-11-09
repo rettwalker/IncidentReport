@@ -50,6 +50,7 @@ public class IncidentReportPushReceiver extends ParsePushBroadcastReceiver {
         switch(type){
             case "report":
                 outGoing = new Intent(context, IncidentList.class);
+                outGoing.putExtra("GroupName","reporting");
                 notBuilder.displayNotification("Alert!!","An Incident Has Occurred, Please Respond!",outGoing);
                 break;
             case "toOfficer":

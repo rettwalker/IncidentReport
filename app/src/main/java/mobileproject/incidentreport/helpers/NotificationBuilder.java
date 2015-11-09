@@ -26,6 +26,10 @@ public class NotificationBuilder  {
 
     public void displayNotification(String title, String message, Intent intent){
         Log.i(TAG,"Incoming Intent");
+        String GROUP_KEY = "respondToUser";
+        if(intent.getExtras().getString("GroupName").equals("reporting")){
+            GROUP_KEY = "reportToDispatch";
+        }
 
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
@@ -41,6 +45,8 @@ public class NotificationBuilder  {
                 .setContentIntent(resultPendingIntent)
                 .setContentTitle(title)
                 .setContentText(message)
+                .setGroup(GROUP_KEY)
+                .setGroupSummary(true)
                 .setAutoCancel(true);
 
         NotificationManager noteMan = (NotificationManager) incomingContext
