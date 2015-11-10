@@ -310,7 +310,7 @@ public class Report_A_Incident extends AppCompatActivity implements
                 if(fileUri!=null){
                     File pic = new File(fileUri.getPath());
                     FileInputStream fileInputStream = new FileInputStream(pic);
-                    imageSt=con.prepareStatement("INSERT INTO tbl_photos(photo_id,photo,incident_id) VALUES (NULL,?,?");
+                    imageSt=con.prepareStatement("INSERT INTO tbl_photos(photo_id,photo,incident_id) VALUES (NULL,?,?);");
                     imageSt.setBinaryStream(1,fileInputStream);
                     imageSt.setInt(2,current_incident.getId());
                     imageSt.executeUpdate();
