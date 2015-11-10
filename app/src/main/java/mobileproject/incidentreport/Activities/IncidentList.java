@@ -23,7 +23,7 @@ import mobileproject.incidentreport.helpers.IncidentAdapter;
 
 
 public class IncidentList extends AppCompatActivity {
-    private final String TAG = OfficerList.class.getSimpleName();
+    private final String TAG = IncidentList.class.getSimpleName();
     private ArrayList<Incident> incidents = new ArrayList<>();
     private IncidentAdapter incidentAdapter;
     @Override
@@ -43,9 +43,18 @@ public class IncidentList extends AppCompatActivity {
         incidentlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Incident incident =(Incident) incidentlist.getItemAtPosition(position);
-                Intent intent = new Intent(getBaseContext(),DispatchToOfficer.class);
-                intent.putExtra("INCIDENT",incident);
+                Incident incident = (Incident) incidentlist.getItemAtPosition(position);
+                Intent intent;
+                if (!incident.getRespondOfficer_id().equals("true")) {
+                    intent = new Intent(getBaseContext(),Officer_Report.class);
+                    intent.putExtra("from", "inciList");
+                    Bundle extra = new Bundle();
+                    extra.putSerializable("incident",incident);
+                    intent.putExtras(extra);
+                } else {
+                    intent = new Intent(getBaseContext(), DispatchToOfficer.class);
+                }
+                intent.putExtra("INCIDENT", incident);
                 startActivity(intent);
 
             }

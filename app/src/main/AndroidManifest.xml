@@ -105,12 +105,6 @@
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name=".Activities.Dispatch_menu"
-            android:label="@string/title_activity_dispatch_menu"
-            android:theme="@style/AppTheme.NoActionBar" >
-        </activity>
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -125,11 +119,6 @@
         <activity
             android:name=".Activities.IncidentList"
             android:label="@string/title_activity_incident_list"
-            android:theme="@style/AppTheme.NoActionBar" >
-        </activity>
-        <activity
-            android:name=".Activities.OfficerList"
-            android:label="@string/title_activity_officer_list"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
         <activity

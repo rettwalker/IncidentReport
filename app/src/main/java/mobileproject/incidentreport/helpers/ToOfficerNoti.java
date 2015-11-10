@@ -33,9 +33,11 @@ public class ToOfficerNoti {
 
         String cat_type = information.getString("catType");
         String address = information.getString("strAddress");
+        int incident_id = information.getInt("incident_id");
 
         Log.i(TAG, "Incoming Intent = " + intent.getExtras().toString());
-
+        intent.putExtra("incident_id",incident_id);
+        intent.putExtra("from","noti");
 
 
         if(information.getString("type").equals("toOfficer")){
