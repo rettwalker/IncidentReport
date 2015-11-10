@@ -1,6 +1,9 @@
 package mobileproject.incidentreport.Activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,6 +17,11 @@ import android.widget.Toast;
 
 import com.parse.ParsePush;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import mobileproject.incidentreport.R;
@@ -22,6 +30,9 @@ import mobileproject.incidentreport.helpers.ConfigApp;
 public class OLoginActivity extends AppCompatActivity {
     private static final String TAG = "OLoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+    private static SharedPreferences sharedPreferences;
+    private static SharedPreferences.Editor editor;
+    private boolean isUser = false;
 
 
     @Bind(R.id.input_username) EditText _usernameText;
@@ -35,6 +46,8 @@ public class OLoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ologin);
         ButterKnife.bind(this);
+        sharedPreferences = getApplicationContext().getSharedPreferences(ConfigApp.USER_LOGIN_PREF, Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -89,17 +102,29 @@ public class OLoginActivity extends AppCompatActivity {
         final String password = _passwordText.getText().toString();
 
         // TODO: Implement your own authentication logic here.
-
+        new AuthUser(username,password).execute();
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-                        ParsePush.subscribeInBackground(username);
-                        if (username.equalsIgnoreCase("dispatch")) {
-                            onDispatchLoginSuccess();
-                        }else {
-                            onLoginSuccess();
+                        if(isUser){
+                            ParsePush.subscribeInBackground(username);
+                            editor.putString("USERNAME", _usernameText.getText().toString());
+                            editor.putBoolean("isLoggedIn",true);
+                            editor.commit();
+                            if (username.equalsIgnoreCase("dispatch")) {
+                                editor.putString("TYPE","dispatch");
+                                editor.commit();
+                                onDispatchLoginSuccess();
+
+                            }else {
+                                editor.putString("TYPE","officer");
+                                editor.commit();
+                                onLoginSuccess();
+                            }
+
+                        }else{
+                            onLoginFailed();
                         }
-                        // onLoginFailed();
                         progressDialog.dismiss();
                     }
                 }, 3000);
@@ -165,5 +190,49 @@ public class OLoginActivity extends AppCompatActivity {
         }
 
         return valid;
+    }
+    private class AuthUser extends AsyncTask<Void, Void, Void> {
+        private final String user;
+        private final String pass;
+        public AuthUser(String user, String pass){
+            this.user = user;
+            this.pass = pass;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try{
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection con = DriverManager.getConnection(ConfigApp.database_url, ConfigApp.database_user, ConfigApp.database_pass);
+                String queryString = "SELECT username, officer_id FROM tbl_officers WHERE username='"+user+"' AND password='"+pass+"';";
+
+                Statement st = con.createStatement();
+                ResultSet rs = st.executeQuery(queryString);
+                if(rs.next()){
+                    rs.getInt("officer_id");
+                    if(!rs.wasNull()){
+                        editor.putInt("USER_ID", rs.getInt("officer_id"));
+                        editor.commit();
+                        isUser = true;
+                    }
+
+
+                }
+                con.close();
+
+            }catch (Exception e){
+                Log.e(TAG, e.toString());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            Log.d(TAG,"DID the stuff");
+
+
+        }
     }
 }

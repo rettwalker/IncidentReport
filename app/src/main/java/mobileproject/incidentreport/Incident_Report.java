@@ -11,6 +11,7 @@ import mobileproject.incidentreport.helpers.ParseHelper;
 public class Incident_Report extends Application {
     private static Incident_Report instance;
 
+
     public void onCreate() {
         super.onCreate();
         instance = this;

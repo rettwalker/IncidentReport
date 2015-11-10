@@ -4,9 +4,24 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@drawable/officermenubackground"
     tools:context="mobileproject.incidentreport.Activities.Officer_Menu">
-
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/accent"
+        android:textSize="34dp"
+        android:text="Welcome to APD Incident Report System"/>
+    <Button
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="   Incidents   "
+        android:id="@+id/button"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="59dp"
+        android:textColor="@color/accent"
+        android:background="@drawable/roundbutton"
+        android:onClick="loadOfficerIncidents"
+        />
 </RelativeLayout>

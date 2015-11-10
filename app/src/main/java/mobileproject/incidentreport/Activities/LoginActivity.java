@@ -1,6 +1,9 @@
 package mobileproject.incidentreport.Activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,14 +17,23 @@ import android.widget.Toast;
 
 import com.parse.ParsePush;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import mobileproject.incidentreport.Entities.Officer;
 import mobileproject.incidentreport.R;
 import mobileproject.incidentreport.helpers.ConfigApp;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+    private static SharedPreferences sharedPreferences;
+    private static SharedPreferences.Editor editor;
+    private boolean isUser=false;
 
     @Bind(R.id.input_username) EditText _usernameText;
     @Bind(R.id.input_password) EditText _passwordText;
@@ -35,6 +47,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+        sharedPreferences = getApplicationContext().getSharedPreferences(ConfigApp.USER_LOGIN_PREF, Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -88,13 +102,21 @@ public class LoginActivity extends AppCompatActivity {
 
         // TODO: Implement your own authentication logic here.
 
+        new AuthUser(username,password).execute();
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-                        ParsePush.subscribeInBackground(username);
-                        // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
-                        // onLoginFailed();
+                        if(isUser){
+                            ParsePush.subscribeInBackground(username);
+                            // On complete call either onLoginSuccess or onLoginFailed
+                            onLoginSuccess();
+                            editor.putString("USERNAME", _usernameText.getText().toString());
+                            editor.putBoolean("isLoggedIn", true);
+                            editor.putString("TYPE","user");
+                            editor.commit();
+                        }else{
+                            onLoginFailed();
+                        }
                         progressDialog.dismiss();
                     }
                 }, 3000);
@@ -153,5 +175,49 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         return valid;
+    }
+    private class AuthUser extends AsyncTask<Void, Void, Void> {
+        private final String user;
+        private final String pass;
+        public AuthUser(String user, String pass){
+            this.user = user;
+            this.pass = pass;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try{
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection con = DriverManager.getConnection(ConfigApp.database_url, ConfigApp.database_user, ConfigApp.database_pass);
+                String queryString = "SELECT username, user_id FROM tbl_users WHERE username='"+user+"' AND password='"+pass+"';";
+
+                Statement st = con.createStatement();
+                ResultSet rs = st.executeQuery(queryString);
+
+                if(rs.next()){
+                   rs.getInt("user_id");
+                    if(!rs.wasNull()){
+                        editor.putInt("USER_ID", rs.getInt("user_id"));
+                        editor.commit();
+                        Log.i(TAG, rs.getString("user_id"));
+                        isUser = true;
+                    }
+                }
+
+                con.close();
+
+            }catch (Exception e){
+                Log.e(TAG, e.toString());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Log.d(TAG,"DID the stuff");
+
+
+        }
     }
 }

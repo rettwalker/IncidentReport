@@ -58,7 +58,7 @@ public class DispatchToOfficer extends AppCompatActivity {
                 JSONObject incidentOb = null;
                 JSONObject incidentUs = null;
                 try {
-                    incidentOb = new JSONObject().put("incident_id",incident.getId())
+                    incidentOb = new JSONObject().put("incident_id", incident.getId())
                     .put("type","toOfficer")
                     .put("strAddress",incident.getStreetAddress())
                     .put("catType",incident.getType());
@@ -112,6 +112,8 @@ public class DispatchToOfficer extends AppCompatActivity {
                     officers.add(officer);
 
                 }
+                //query=" INSERT INTO tbl_officer_responds_incident VALUES(NULL,NULL,'"+current_incident.getId()+",NULL);";
+                //st.executeUpdate(query);
                 con.close();
 
             }catch (Exception e){

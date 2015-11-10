@@ -31,8 +31,6 @@
         android:name="mobileproject.incidentreport.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="mobileproject.incidentreport.permission.C2D_MESSAGE" />
-
     <application
         android:name=".Incident_Report"
         android:allowBackup="true"
@@ -128,14 +126,11 @@
             android:name=".Activities.IncidentList"
             android:label="@string/title_activity_incident_list"
             android:theme="@style/AppTheme.NoActionBar" >
-
         </activity>
         <activity
             android:name=".Activities.OfficerList"
             android:label="@string/title_activity_officer_list"
-
             android:theme="@style/AppTheme.NoActionBar" >
-
         </activity>
         <activity
             android:name=".Activities.DispatchToOfficer"
@@ -145,6 +140,11 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="mobileproject.incidentreport.Activities.IncidentList" />
+        </activity>
+        <activity
+            android:name=".Activities.Officer_Report"
+            android:label="@string/title_activity_officer__report"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
     </application>
 

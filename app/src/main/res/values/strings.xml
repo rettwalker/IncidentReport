@@ -43,4 +43,6 @@
     <string name="unrespond_button">Display Unresponded To Incidents</string>
     <string name="display_officer_button">Display Officers</string>
     <string name="title_activity_dispatch_to_officer">DispatchToOfficer</string>
+    <string name="username" />
+    <string name="title_activity_officer__report">Officer_Report</string>
 </resources>

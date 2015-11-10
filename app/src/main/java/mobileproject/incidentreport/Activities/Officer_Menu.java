@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-
+import android.view.View;
 
 
 import mobileproject.incidentreport.R;
@@ -49,6 +49,11 @@ public class Officer_Menu extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public void loadOfficerIncidents(View v)
+    {
+        Intent intent = new Intent(this, Officer_Report.class);
+        startActivity(intent);
     }
 
 }

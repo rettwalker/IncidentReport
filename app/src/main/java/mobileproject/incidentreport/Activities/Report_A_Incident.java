@@ -3,6 +3,7 @@ package mobileproject.incidentreport.Activities;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -15,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -41,6 +43,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import mobileproject.incidentreport.Entities.Incident;
@@ -56,12 +59,18 @@ public class Report_A_Incident extends AppCompatActivity implements
     private Uri fileUri;
     private Incident current_incident = new Incident();
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    SharedPreferences prefs;
+    private String username;
+    private int user_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report__a__incident);
         buildGoogleApiClient();
+        prefs = getSharedPreferences(ConfigApp.USER_LOGIN_PREF, MODE_PRIVATE);
+        username = prefs.getString("USERNAME", null);
+        user_id = prefs.getInt("USER_ID",0);
         mGoogleApiClient.connect();
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -171,13 +180,9 @@ public class Report_A_Incident extends AppCompatActivity implements
         }
 
         // Create a media file name
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        Date date = dateFormat.parse("23/09/2007");
-        long time = date.getTime();
-        Timestamp timeStamp = new Timestamp(time);
-        current_incident.setTimestamp(timeStamp);
+
         File mediaFile;
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_"+ timeStamp + ".jpg");
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_"+ user_id + ".jpg");
 
 
         return mediaFile;
@@ -206,9 +211,13 @@ public class Report_A_Incident extends AppCompatActivity implements
     }
 
     public void reportIncident(View view) throws JSONException {
-        String description = findViewById(R.id.incident_description).toString();
+        Calendar calendar = Calendar.getInstance();
+        Timestamp timeStamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        current_incident.setTimestamp(timeStamp);
+        EditText descrip = (EditText) findViewById(R.id.incident_description);
+        String description = descrip.getText().toString();
         current_incident.setDescription(description);
-        current_incident.setUsername("test");
+        current_incident.setUsername(username);
         JSONObject incident = new JSONObject()
                 .put("type","report");
 
@@ -247,7 +256,7 @@ public class Report_A_Incident extends AppCompatActivity implements
                 ResultSet rs;
                 int check;
                 int typeID=0;
-                switch (current_incident.getType()) {
+                switch (current_incident.getType().toLowerCase()) {
                     case "fire":
                         typeID = 4;
                         break;
@@ -274,22 +283,29 @@ public class Report_A_Incident extends AppCompatActivity implements
 
 
                 rs = st.executeQuery(query);
+
                 if(rs.next()){
-                    Log.i(TAG,"user ID = "+rs.getInt("MAX(incident_id)"));
-                    current_incident.setId(rs.getInt("MAX(incident_id)"));
+                    Log.i(TAG,"Incident ID = "+rs.getInt("MAX(incident_id)"));
+                    current_incident.setId(rs.getInt("MAX(incident_id)")+1);
                 }
 
                 //Insert incident into tbl_incident
-                query= "INSERT INTO tbl_incidents (incident_id,longitude,latitude,description)\n" +
-                        "      VALUES('"+current_incident.getId()+"','"+current_incident.getLat()
-                        +"', '"+current_incident.getLongit()+"', '"+current_incident.getDescription()+"');" +
-                        "INSERT INTO tbl_incident_cat (incident_id,catogories_id)" +
-                        "VALUES ('"+current_incident.getId()+"','"+typeID+"');" +
-                        "INSERT INTO tbl_user_reports_incident (report_id,user_id,incident_id,reportTime)" +
-                        "VALUES (NULL,'"+current_incident.getUserId()+"','"+current_incident.getId()+"'," +
-                        "'"+current_incident.getTimestamp()+"');" +
-                        "INSERT INTO tbl_officer_responds_incident VALUES(NULL,NULL,'"+current_incident.getId()+",NULL);";
-                //st.executeUpdate(query);
+                query= "INSERT INTO tbl_incidents (incident_id,longitude,latitude,description)" +
+                        " VALUES('"+current_incident.getId()+"','"+current_incident.getLat()
+                        +"', '"+current_incident.getLongit()+"', '"+current_incident.getDescription()+"');";
+                st.executeUpdate(query);
+
+                query=" INSERT INTO tbl_incident_cat (incident_id,catogories_id)" +
+                        " VALUES ('"+current_incident.getId()+"','"+typeID+"');";
+                st.executeUpdate(query);
+
+
+                query = " INSERT INTO tbl_user_reports_incident (report_id,user_id,incident_id,reportTime)" +
+                        " VALUES (NULL,'"+user_id+"','"+current_incident.getId()+"'," +
+                        "'"+current_incident.getTimestamp()+"');";
+                st.executeUpdate(query);
+
+
 
                 if(fileUri!=null){
                     File pic = new File(fileUri.getPath());
@@ -297,7 +313,7 @@ public class Report_A_Incident extends AppCompatActivity implements
                     imageSt=con.prepareStatement("INSERT INTO tbl_photos(photo_id,photo,incident_id) VALUES (NULL,?,?");
                     imageSt.setBinaryStream(1,fileInputStream);
                     imageSt.setInt(2,current_incident.getId());
-                    //check=imageSt.executeUpdate();
+                    imageSt.executeUpdate();
                 }
                 con.close();
 
