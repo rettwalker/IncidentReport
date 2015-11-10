@@ -228,7 +228,7 @@ public class Report_A_Incident extends AppCompatActivity implements
         push.setChannel("dispatch");
         push.setData(incident);
         new insertDB().execute();
-        //push.sendInBackground();
+        push.sendInBackground();
         finish();
     }
     private class insertDB extends AsyncTask<Void, Void, Void> {
