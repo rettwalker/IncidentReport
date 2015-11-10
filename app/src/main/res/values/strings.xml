@@ -21,7 +21,7 @@
         <item>Battery</item>
         <item>Fire</item>
         <item>Sexual Assault</item>
-        <item>Drugs</item>
+        <item>Drugs</item>git
     </string-array>
     <string-array name="categorySpinner">
         <item>Select Category</item>
@@ -35,7 +35,6 @@
     <string name="title_activity_display__incident__list">Display_Incident_List</string>
     <string name="title_activity_dispatch_menu">Dispatch_menu</string>
     <string name="title_activity_incident_map">Map</string>
-    <string name="google_maps_key">AIzaSyAanwOsUnNqGPMc_aQDZzDwdVFHb_4RtIc</string>
     <string name="title_activity_incident_list">IncidentList</string>
     <string name="title_activity_officer_list">OfficerList</string>
     <string name="title_activity_un_responded_list">UnRespondedList</string>
