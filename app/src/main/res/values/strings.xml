@@ -44,4 +44,8 @@
     <string name="title_activity_dispatch_to_officer">DispatchToOfficer</string>
     <string name="username" />
     <string name="title_activity_officer__report">Officer_Report</string>
+    <string name="logout">Logout</string>
+    <string name="title_activity_user_account_settings">Account Settings</string>
+    <string name="title_activity_driver_map">Map</string>
+
 </resources>

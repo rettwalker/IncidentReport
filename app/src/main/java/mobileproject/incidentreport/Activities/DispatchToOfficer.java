@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -27,6 +29,7 @@ import mobileproject.incidentreport.Entities.Incident;
 import mobileproject.incidentreport.Entities.Officer;
 import mobileproject.incidentreport.R;
 import mobileproject.incidentreport.helpers.ConfigApp;
+import mobileproject.incidentreport.helpers.LogOut;
 import mobileproject.incidentreport.helpers.OfficerAdapter;
 
 public class DispatchToOfficer extends AppCompatActivity {
@@ -53,26 +56,22 @@ public class DispatchToOfficer extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Officer officer = (Officer) officerlist.getItemAtPosition(position);
+                //new assignOfficer(officer.getOfficer_id()).execute();
                 ParsePush push = new ParsePush();
                 push.setChannel(officer.getUsername());
                 JSONObject incidentOb = null;
-                JSONObject incidentUs = null;
+
                 try {
                     incidentOb = new JSONObject().put("incident_id", incident.getId())
-                    .put("type","toOfficer")
-                    .put("strAddress",incident.getStreetAddress())
-                    .put("catType",incident.getType());
-                    incidentUs = new JSONObject().put("type", "toUser");
+                            .put("type", "toOfficer")
+                            .put("strAddress", incident.getStreetAddress())
+                            .put("catType", incident.getType());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 push.setData(incidentOb);
-                //push.sendInBackground();
-                ParsePush userPush = new ParsePush();
-                userPush.setChannel(incident.getUsername());
-                userPush.setData(incidentUs);
-                //userPush.sendInBackground();
-                Toast notifyOfficer = Toast.makeText(getBaseContext(), "Officer Notified and User Notified" , Toast.LENGTH_LONG);
+                push.sendInBackground();
+                Toast notifyOfficer = Toast.makeText(getBaseContext(), "Officer Notified and User Notified", Toast.LENGTH_LONG);
                 notifyOfficer.show();
                 finish();
 
@@ -80,6 +79,38 @@ public class DispatchToOfficer extends AppCompatActivity {
         });
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+    }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        switch (id)
+        {
+            case R.id.accountSettings:
+                Intent intent = new Intent(this, user_account_settings.class);
+                startActivity(intent);
+                break;
+            case R.id.logout:
+                LogOut exit = new LogOut();
+                exit.setTheContext(getApplicationContext());
+                exit.setActivity(this);
+                exit.logMeOut();
+            default:
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void setIncident(){
@@ -89,6 +120,7 @@ public class DispatchToOfficer extends AppCompatActivity {
         incident = (Incident) intent.getExtras().getSerializable("INCIDENT");
         address.setText(incident.getStreetAddress());
         type.setText(incident.getType());
+        Log.i(TAG,"incident id = "+incident.getId()+" user = "+incident.getUsername());
 
     }
 
@@ -131,5 +163,46 @@ public class DispatchToOfficer extends AppCompatActivity {
 
         }
     }
+
+    /*
+    private class assignOfficer extends AsyncTask<Void, Void, Void> {
+        private int id;
+        public assignOfficer(int of_id){
+            id=of_id;
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try{
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection con = DriverManager.getConnection(ConfigApp.database_url, ConfigApp.database_user, ConfigApp.database_pass);
+                String queryString = "INSERT INTO tbl_officer_responds_incident (respond_id,officer_id,incident_id,respondTime) " +
+                        "VALUES (NULL,'"+id+"','"+incident.getId()+"',NULL);";
+
+                Statement st = con.createStatement();
+                st.executeUpdate(queryString);
+
+                queryString = "UPDATE tbl_incidents SET responded='true' WHERE incident_id='"+incident.getId()+"';";
+                st.executeUpdate(queryString);
+
+                con.close();
+
+            }catch (Exception e){
+                Log.e(TAG, e.toString());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            officerArrayAdapter.notifyDataSetChanged();
+            Log.d(TAG,"DID the stuff");
+
+
+        }
+    }
+    */
 
 }

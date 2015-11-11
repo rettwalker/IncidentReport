@@ -12,6 +12,7 @@ import android.view.View;
 
 
 import mobileproject.incidentreport.R;
+import mobileproject.incidentreport.helpers.LogOut;
 
 
 public class Officer_Menu extends AppCompatActivity {
@@ -29,14 +30,13 @@ public class Officer_Menu extends AppCompatActivity {
 
     }
 
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_officer__menu, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
-    @Override
+
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -44,12 +44,24 @@ public class Officer_Menu extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id)
+        {
+            case R.id.accountSettings:
+                Intent intent = new Intent(this, user_account_settings.class);
+                startActivity(intent);
+                break;
+            case R.id.logout:
+                LogOut exit = new LogOut();
+                exit.setTheContext(getApplicationContext());
+                exit.setActivity(this);
+                exit.logMeOut();
+            default:
+                break;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
     public void loadOfficerIncidents(View v)
     {
         Intent intent = new Intent(this, Officer_Report.class);

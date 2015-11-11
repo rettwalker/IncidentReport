@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import mobileproject.incidentreport.Activities.IncidentList;
 import mobileproject.incidentreport.Activities.Officer_Menu;
+import mobileproject.incidentreport.Activities.Officer_Report;
 import mobileproject.incidentreport.Activities.User_Menu;
 
 /**
@@ -51,7 +52,7 @@ public class IncidentReportPushReceiver extends ParsePushBroadcastReceiver {
                 notBuilder.displayNotification("Alert!!","An Incident Has Occurred, Please Respond!",outGoing);
                 break;
             case "toOfficer":
-                outGoing = new Intent(context, Officer_Menu.class);
+                outGoing = new Intent(context, Officer_Report.class);
                 outGoing.putExtras(intent.getExtras());
                 try {
                     officerNoti.displayNotification("Alert!!","An Incident Has Occurred, Please Respond!",outGoing);
@@ -61,7 +62,8 @@ public class IncidentReportPushReceiver extends ParsePushBroadcastReceiver {
                 break;
             case "toUser":
                 outGoing = new Intent(context, User_Menu.class);
-                notBuilder.displayNotification("Alert!!","An Officer Is Responding",outGoing);
+                outGoing.putExtra("GroupName","respondToUser");
+                notBuilder.displayNotification("Alert!!", "An Officer Is Responding",outGoing);
                 break;
         }
 

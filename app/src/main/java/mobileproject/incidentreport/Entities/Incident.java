@@ -17,14 +17,11 @@ public class Incident implements Serializable {
     private Timestamp timestamp;
     private String type;
     private String description;
-    private Uri fileUri;
-    private int userId;
     private int id;
     private String streetAddress;
-    private int respond_id;
-    private String respondOfficer_id;
-    private Timestamp respondTimestamp;
     private String username;
+    private boolean respondedTo = false;
+
 
     public Incident(){
 
@@ -86,22 +83,6 @@ public class Incident implements Serializable {
         return type;
     }
 
-    public void setFileUri(Uri fileUri) {
-        this.fileUri = this.fileUri;
-    }
-
-    public Uri getFileUri() {
-        return fileUri;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
     public void setUsername(String username) {
         this.username = username;
     }
@@ -110,27 +91,11 @@ public class Incident implements Serializable {
         return username;
     }
 
-    public int getRespond_id() {
-        return respond_id;
+    public boolean getRespondedTo() {
+        return respondedTo;
     }
 
-    public void setRespond_id(int respond_id) {
-        this.respond_id = respond_id;
-    }
-
-    public String getRespondOfficer_id() {
-        return respondOfficer_id;
-    }
-
-    public void setRespondOfficer_id(String respondOfficer_id) {
-        this.respondOfficer_id = respondOfficer_id;
-    }
-
-    public Timestamp getRespondTimestamp() {
-        return respondTimestamp;
-    }
-
-    public void setRespondTimestamp(Timestamp respondTimestamp) {
-        this.respondTimestamp = respondTimestamp;
+    public void setRespondedTo(boolean respondedTo) {
+        this.respondedTo = respondedTo;
     }
 }

@@ -12,6 +12,9 @@ android {
         versionName "1.0"
         multiDexEnabled true;
     }
+    dexOptions {
+        javaMaxHeapSize "2048M"
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -29,5 +32,6 @@ dependencies {
     compile 'com.google.android.gms:play-services:8.1.0'
     compile 'com.parse.bolts:bolts-android:1.2.1'
     compile 'com.parse:parse-android:1.10.3'
+    compile 'com.android.support:multidex:1.0.0'
 
 }

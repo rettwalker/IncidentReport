@@ -135,6 +135,10 @@
             android:label="@string/title_activity_officer__report"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
+        <activity
+            android:name=".Activities.user_account_settings"
+            android:label="Account Settings" >
+        </activity>
     </application>
 
 </manifest>

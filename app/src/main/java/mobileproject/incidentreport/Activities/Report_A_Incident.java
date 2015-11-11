@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -21,6 +23,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -45,10 +48,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import mobileproject.incidentreport.Entities.Incident;
 import mobileproject.incidentreport.R;
 import mobileproject.incidentreport.helpers.ConfigApp;
+import mobileproject.incidentreport.helpers.LogOut;
 
 public class Report_A_Incident extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -62,12 +68,14 @@ public class Report_A_Incident extends AppCompatActivity implements
     SharedPreferences prefs;
     private String username;
     private int user_id;
+    private Geocoder geocoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report__a__incident);
         buildGoogleApiClient();
+        geocoder = new Geocoder(this, Locale.getDefault());
         prefs = getSharedPreferences(ConfigApp.USER_LOGIN_PREF, MODE_PRIVATE);
         username = prefs.getString("USERNAME", null);
         user_id = prefs.getInt("USER_ID",0);
@@ -83,17 +91,17 @@ public class Report_A_Incident extends AppCompatActivity implements
         reportCat.setAdapter(adapter);
         reportCat.setOnItemSelectedListener(new TypeSelector());
 
+
     }
 
 
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_report__a__incident, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
-    @Override
+
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -101,8 +109,19 @@ public class Report_A_Incident extends AppCompatActivity implements
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id)
+        {
+            case R.id.accountSettings:
+                Intent intent = new Intent(this, user_account_settings.class);
+                startActivity(intent);
+                break;
+            case R.id.logout:
+                LogOut exit = new LogOut();
+                exit.setTheContext(getApplicationContext());
+                exit.setActivity(this);
+                exit.logMeOut();
+            default:
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -117,7 +136,7 @@ public class Report_A_Incident extends AppCompatActivity implements
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getPackageManager()) != null) {
             fileUri = getOutputMediaFileUri(); // create a file to save the image
-            current_incident.setFileUri(fileUri);
+
             Log.d(TAG, "File URI is "+ fileUri);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
             startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
@@ -203,6 +222,11 @@ public class Report_A_Incident extends AppCompatActivity implements
         Log.d(TAG, location.toString());
         current_incident.setLat(location.getLatitude());
         current_incident.setLongit(location.getLongitude());
+        try {
+            findStrAddr();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -290,9 +314,9 @@ public class Report_A_Incident extends AppCompatActivity implements
                 }
 
                 //Insert incident into tbl_incident
-                query= "INSERT INTO tbl_incidents (incident_id,longitude,latitude,description)" +
+                query= "INSERT INTO tbl_incidents (incident_id,longitude,latitude,description,strAddr)" +
                         " VALUES('"+current_incident.getId()+"','"+current_incident.getLat()
-                        +"', '"+current_incident.getLongit()+"', '"+current_incident.getDescription()+"');";
+                        +"', '"+current_incident.getLongit()+"', '"+current_incident.getDescription()+"','"+current_incident.getStreetAddress()+"');";
                 st.executeUpdate(query);
 
                 query=" INSERT INTO tbl_incident_cat (incident_id,catogories_id)" +
@@ -339,6 +363,14 @@ public class Report_A_Incident extends AppCompatActivity implements
         public void onNothingSelected(AdapterView<?> parent) {
             // Another interface callback
         }
+    }
+    public void findStrAddr() throws IOException {
+        List<Address> addresses = geocoder.getFromLocation(current_incident.getLat(), current_incident.getLongit(), 1);
+        //Log.i(TAG,"incident lat1 = "+lat+"incident lng = "+lng);
+        String addr = addresses.get(0).getAddressLine(0)+"\n"+
+                addresses.get(0).getLocality()+" "+addresses.get(0).getAdminArea()+
+                " "+addresses.get(0).getPostalCode();
+        current_incident.setStreetAddress(addr);
     }
 }
 

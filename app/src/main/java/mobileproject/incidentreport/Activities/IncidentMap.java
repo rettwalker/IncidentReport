@@ -1,10 +1,10 @@
 package mobileproject.incidentreport.Activities;
 
-import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,11 +31,12 @@ import mobileproject.incidentreport.Entities.Incident;
 import mobileproject.incidentreport.R;
 import mobileproject.incidentreport.helpers.ConfigApp;
 
-public class IncidentMap extends FragmentActivity implements AdapterView.OnItemSelectedListener {
+public class IncidentMap extends FragmentActivity implements LocationListener, AdapterView.OnItemSelectedListener {
 
     private Spinner categoryDropDown;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     ArrayList<Incident> report = new ArrayList<>();
+    String locationType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,14 +71,39 @@ public class IncidentMap extends FragmentActivity implements AdapterView.OnItemS
         try {
             if (!category.equals("Select Category")) {
                 mMap.clear();
-                LocationManager mng = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                Location location = mng.getLastKnownLocation(mng.getBestProvider(new Criteria(), false));
 
-                double lat = location.getLatitude();
-                double lon = location.getLongitude();
+                if(locationType.equals("network")) {
+                    try {
+                        LocationManager mng = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        mng.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, this);
+                        Location location = mng.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-                mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("YOU").icon(BitmapDescriptorFactory.fromResource(R.drawable.youmarker)));
+                        double lat = location.getLatitude();
+                        double lon = location.getLongitude();
 
+                        mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("YOU").icon(BitmapDescriptorFactory.fromResource(R.drawable.youmarker)));
+                    }
+                    catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                else if (locationType.equals("gps"))
+                {
+                    try {
+                        LocationManager mng = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        mng.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+                        Location location = mng.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                        double lat = location.getLatitude();
+                        double lon = location.getLongitude();
+
+                        mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("YOU").icon(BitmapDescriptorFactory.fromResource(R.drawable.youmarker)));
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.printStackTrace();
+                     }
+                }
 
                 for (int i = 0; i < report.size(); i++) {
                     if (report.get(i).getType().equals(category)) {
@@ -86,9 +112,35 @@ public class IncidentMap extends FragmentActivity implements AdapterView.OnItemS
                     }
                 }
             }
+            else
+            {
+                for (int i = 0; i < report.size(); i++) {
+                    mMap.addMarker(new MarkerOptions().position(new LatLng(report.get(i).getLat(), report.get(i).getLongit())).title(report.get(i).getType()).icon(BitmapDescriptorFactory.fromResource(R.drawable.criminal)));
+                }
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
 
     }
 
@@ -182,6 +234,7 @@ public class IncidentMap extends FragmentActivity implements AdapterView.OnItemS
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.incidentMap))
                     .getMap();
+            setUpMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
@@ -201,16 +254,59 @@ public class IncidentMap extends FragmentActivity implements AdapterView.OnItemS
      */
     private void setUpMap() {
         try {
+
+
             LocationManager mng = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            Location location = mng.getLastKnownLocation(mng.getBestProvider(new Criteria(), false));
+            boolean isGPSEnabled = mng.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            boolean isNetworkEnabled = mng.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            if (!isGPSEnabled && !isNetworkEnabled)
+            {
 
+            }
+            else
+            {
+                if (isNetworkEnabled)
+                {
+                    mng.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0,this);
+                    if (mng != null)
+                    {
+                        Location location = mng.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        if (location != null)
+                        {
+                            double lat = location.getLatitude();
+                            double lon = location.getLongitude();
 
-            double lat = location.getLatitude();
-            double lon = location.getLongitude();
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 10);
+                            mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("YOU").icon(BitmapDescriptorFactory.fromResource(R.drawable.youmarker)));
+                            mMap.animateCamera(cameraUpdate);
 
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 10);
-            mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("YOU").icon(BitmapDescriptorFactory.fromResource(R.drawable.youmarker)));
-            mMap.animateCamera(cameraUpdate);
+                            locationType = "network";
+                        }
+
+                    }
+                }
+                else if(isGPSEnabled)
+                {
+                    mng.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0,this);
+                    if (mng != null)
+                    {
+                        Location location = mng.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        if (location != null)
+                        {
+                            double lat = location.getLatitude();
+                            double lon = location.getLongitude();
+
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 10);
+                            mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("YOU").icon(BitmapDescriptorFactory.fromResource(R.drawable.youmarker)));
+                            mMap.animateCamera(cameraUpdate);
+
+                            locationType = "gps";
+                        }
+
+                    }
+
+                }
+            }
             for (int i = 0; i < report.size(); i++) {
                 mMap.addMarker(new MarkerOptions().position(new LatLng(report.get(i).getLat(), report.get(i).getLongit())).title(report.get(i).getType()).icon(BitmapDescriptorFactory.fromResource(R.drawable.criminal)));
             }
