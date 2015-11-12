@@ -39,6 +39,7 @@ public class Officer_Report extends AppCompatActivity {
     private Incident incident;
     private int phonenumber;
     private static SharedPreferences sharedPreferences;
+    private static SharedPreferences.Editor editor;
     private Timestamp timeStamp;
     JSONObject incidentUs = null;
 
@@ -51,17 +52,34 @@ public class Officer_Report extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         sharedPreferences = getApplicationContext().getSharedPreferences(ConfigApp.USER_LOGIN_PREF, Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
         Intent intent = getIntent();
         incident_id = intent.getIntExtra("incident_id",0);
         new getIncidentInfo().execute();
         Calendar calendar = Calendar.getInstance();
         timeStamp = new java.sql.Timestamp(calendar.getTime().getTime());
         new assignOfficer(sharedPreferences.getInt("USER_ID",0)).execute();
-        Log.i(TAG,"incident_id = "+incident_id);
+        Log.i(TAG, "incident_id = " + incident_id);
+
+        editor.putInt("CURRENT_INCIDENT", incident_id);
+        editor.commit();
 
 
 
     }
+    public void alertUser(View view){
+        new assignOfficer(sharedPreferences.getInt("USER_ID",0)).execute();
+        try {
+            incidentUs = new JSONObject().put("type", "toUser");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ParsePush userPush = new ParsePush();
+        userPush.setChannel(incident.getUsername());
+        userPush.setData(incidentUs);
+        userPush.sendInBackground();
+    }
+
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -109,12 +127,12 @@ public class Officer_Report extends AppCompatActivity {
                 Class.forName("com.mysql.jdbc.Driver");
                 Connection con = DriverManager.getConnection(ConfigApp.database_url, ConfigApp.database_user, ConfigApp.database_pass);
                 String queryString = "INSERT INTO tbl_officer_responds_incident (respond_id,officer_id,incident_id,respondTime) " +
-                        "VALUES (NULL,'" + id + "','" + incident.getId() + "','"+timeStamp+"');";
+                        "VALUES (NULL,'" + id + "','" + incident_id + "','"+timeStamp+"');";
 
                 Statement st = con.createStatement();
                 st.executeUpdate(queryString);
 
-                queryString = "UPDATE tbl_incidents SET responded='true' WHERE incident_id='" + incident.getId() + "';";
+                queryString = "UPDATE tbl_incidents SET responded='true' WHERE incident_id='" + incident_id + "';";
                 st.executeUpdate(queryString);
 
                 con.close();
@@ -128,15 +146,7 @@ public class Officer_Report extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            try {
-                incidentUs = new JSONObject().put("type", "toUser");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            ParsePush userPush = new ParsePush();
-            userPush.setChannel(incident.getUsername());
-            userPush.setData(incidentUs);
-            userPush.sendInBackground();
+
             Log.d(TAG, "DID the stuff");
 
 
@@ -151,7 +161,7 @@ public class Officer_Report extends AppCompatActivity {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
                 Connection con = DriverManager.getConnection(ConfigApp.database_url, ConfigApp.database_user, ConfigApp.database_pass);
-                String queryString = "SELECT tbl_incidents.*, cat_type, tbl_users.*\n" +
+                String queryString = "SELECT tbl_incidents.*, cat_type, username\n" +
                         "                        FROM tbl_incidents\n" +
                         "                        INNER JOIN tbl_incident_cat\n" +
                         "                         ON tbl_incidents.incident_id=tbl_incident_cat.incident_id\n" +
@@ -161,7 +171,7 @@ public class Officer_Report extends AppCompatActivity {
                         "                        ON tbl_incidents.incident_id = tbl_user_reports_incident.incident_id\n" +
                         "                        INNER JOIN tbl_users\n" +
                         "                        ON tbl_user_reports_incident.user_id=tbl_users.user_id\n" +
-                        "                        WHERE incident_id='"+incident_id+"')";
+                        "                        WHERE tbl_incidents.incident_id='"+incident_id+"';";
 
                 Statement st = con.createStatement();
                 ResultSet rs = st.executeQuery(queryString);

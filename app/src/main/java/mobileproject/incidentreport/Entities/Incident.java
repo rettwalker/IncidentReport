@@ -21,7 +21,7 @@ public class Incident implements Serializable {
     private String streetAddress;
     private String username;
     private boolean respondedTo = false;
-
+    private int catId;
 
     public Incident(){
 
@@ -97,5 +97,13 @@ public class Incident implements Serializable {
 
     public void setRespondedTo(boolean respondedTo) {
         this.respondedTo = respondedTo;
+    }
+
+    public int getCatId() {
+        return catId;
+    }
+
+    public void setCatId(int catId) {
+        this.catId = catId;
     }
 }

@@ -151,7 +151,10 @@ public class IncidentMap extends FragmentActivity implements LocationListener, A
             try {
                 Class.forName("com.mysql.jdbc.Driver");
                 Connection con = DriverManager.getConnection(ConfigApp.database_url, ConfigApp.database_user, ConfigApp.database_pass);
-                String queryString = "select * from g04dbf15.tbl_incidents";
+                String queryString = "SELECT tbl_incidents.*, catogories_id " +
+                        "             FROM tbl_incidents" +
+                        "             INNER JOIN tbl_incident_cat" +
+                        "             ON tbl_incidents.incident_id=tbl_incident_cat.incident_id;";
 
                 Statement st = con.createStatement();
                 final ResultSet rs = st.executeQuery(queryString);
@@ -162,49 +165,14 @@ public class IncidentMap extends FragmentActivity implements LocationListener, A
                     newReport.setLat(rs.getFloat("latitude"));
                     newReport.setDescription(rs.getString("description"));
                     newReport.setId(rs.getInt("incident_id"));
+                    newReport.setCatId(rs.getInt("catogories_id"));
                     report.add(newReport);
                 }
                 con.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            try {
-                Class.forName("com.mysql.jdbc.Driver");
-                Connection con = DriverManager.getConnection(ConfigApp.database_url, ConfigApp.database_user, ConfigApp.database_pass);
-                for (int i = 0; i < report.size(); i++) {
 
-                    String categoryQuery = "select * from g04dbf15.tbl_incident_cat where g04dbf15.tbl_incident_cat.incident_id = " + report.get(i).getId();
-                    int catId = 0;
-                    try {
-                        Statement st3 = con.createStatement();
-                        final ResultSet rs3 = st3.executeQuery(categoryQuery);
-
-                        while (rs3.next()) {
-                            catId = rs3.getInt("catogories_id");
-                            try {
-                                String categoryQuery2 = "select * from g04dbf15.tbl_catogories where g04dbf15.tbl_catogories.catogories_id = " + catId;
-                                Statement st2 = con.createStatement();
-                                final ResultSet rs2 = st2.executeQuery(categoryQuery2);
-
-
-                                while (rs2.next()) {
-                                    report.get(i).setType(rs2.getString("cat_type"));
-                                }
-
-
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                    } catch (Exception ex) {
-                        System.out.println("Failed collect Data for the following reason:");
-                        ex.printStackTrace();
-                    }
-                }
-                con.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
             return null;
         }
 

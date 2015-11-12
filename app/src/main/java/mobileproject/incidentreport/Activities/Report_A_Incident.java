@@ -242,7 +242,7 @@ public class Report_A_Incident extends AppCompatActivity implements
         String description = descrip.getText().toString();
         current_incident.setDescription(description);
         current_incident.setUsername(username);
-        JSONObject incident = new JSONObject()
+        JSONObject incidentTo = new JSONObject()
                 .put("type","report");
 
         Toast all_clear = Toast.makeText(this, "Incident Reported, Thank you!" , Toast.LENGTH_LONG);
@@ -250,9 +250,9 @@ public class Report_A_Incident extends AppCompatActivity implements
 
         ParsePush push = new ParsePush();
         push.setChannel("dispatch");
-        push.setData(incident);
-        new insertDB().execute();
+        push.setData(incidentTo);
         push.sendInBackground();
+        new insertDB().execute();
         finish();
     }
     private class insertDB extends AsyncTask<Void, Void, Void> {

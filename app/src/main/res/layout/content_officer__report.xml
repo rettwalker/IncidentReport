@@ -57,5 +57,6 @@
         android:layout_alignBaseline="@+id/photogallerybutton"
         android:layout_alignBottom="@+id/photogallerybutton"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:onClick="alertUser" />
 </RelativeLayout>

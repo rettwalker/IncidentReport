@@ -35,6 +35,7 @@ public class IncidentReportPushReceiver extends ParsePushBroadcastReceiver {
         Log.i(TAG, "Message Received " + intent.getExtras().toString());
         NotificationBuilder notBuilder = new NotificationBuilder(context);
         ToOfficerNoti officerNoti = new ToOfficerNoti(context);
+        ToUserNoti toUserNoti = new ToUserNoti(context);
 
         Intent outGoing;
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -42,9 +43,11 @@ public class IncidentReportPushReceiver extends ParsePushBroadcastReceiver {
         try {
             parseJSON(intent);
             type = info.getString("type");
+            Log.i(TAG,"type = "+type);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         switch(type){
             case "report":
                 outGoing = new Intent(context, IncidentList.class);
@@ -63,10 +66,10 @@ public class IncidentReportPushReceiver extends ParsePushBroadcastReceiver {
             case "toUser":
                 outGoing = new Intent(context, User_Menu.class);
                 outGoing.putExtra("GroupName","respondToUser");
-                notBuilder.displayNotification("Alert!!", "An Officer Is Responding",outGoing);
+                toUserNoti.displayNotification("Alert!!", "An Officer Is Responding",outGoing);
                 break;
+            default:break;
         }
-
     }
 
     private void parseJSON(Intent intent) throws JSONException {

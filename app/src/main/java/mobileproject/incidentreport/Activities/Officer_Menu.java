@@ -1,7 +1,9 @@
 package mobileproject.incidentreport.Activities;
 
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -12,21 +14,21 @@ import android.view.View;
 
 
 import mobileproject.incidentreport.R;
+import mobileproject.incidentreport.helpers.ConfigApp;
 import mobileproject.incidentreport.helpers.LogOut;
 
 
 public class Officer_Menu extends AppCompatActivity {
     private final String TAG = Officer_Menu.class.getSimpleName();
+    private static SharedPreferences sharedPreferences;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_officer__menu);
-        Intent intent = getIntent();
-        if(intent.getExtras() != null){
-            Log.i(TAG,"Received intent = "+intent.getExtras().getString("com.parse.Data"));
-        }
+        sharedPreferences = getApplicationContext().getSharedPreferences(ConfigApp.USER_LOGIN_PREF, Context.MODE_PRIVATE);
+
 
     }
 
@@ -62,9 +64,10 @@ public class Officer_Menu extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void loadOfficerIncidents(View v)
-    {
+    public void loadOfficerIncidents(View v) {
+
         Intent intent = new Intent(this, Officer_Report.class);
+        intent.putExtra("incident_id",sharedPreferences.getInt("CURRENT_INCIDENT",0));
         startActivity(intent);
     }
 
